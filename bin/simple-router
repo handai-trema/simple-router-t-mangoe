@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler'
+Bundler.setup :default
+
+require 'gli'
+require 'trema'
+
+module SimpleRouterApp
+  extend GLI::App
+
+  desc 'Show routing table'
+  arg_name 'dpid'
+  command :show_table do |c|
+    c.desc 'Location to find socket files'
+    c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+    c.action do |_global_options, options, args|
+      dpid = args[0].hex
+      Trema.trema_process('SimpleRouter', options[:socket_dir]).controller.
+        show_routing_table(dpid)
+    end
+  end
+
+  desc 'Add entry to routing table'
+  arg_name 'dpid prefix netmask-length next'
+  command :add_table do |c|
+    c.desc 'Location to find socket files'
+    c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+    c.action do |_global_options, options, args|
+      dpid = args[0].hex
+      prefix = args[1].to_s
+      mask_length = args[2].to_s
+      next_address = args[3].to_s
+      Trema.trema_process('SimpleRouter', options[:socket_dir]).controller.
+        add_routing_table(dpid,prefix,mask_length,next_address)
+    end
+  end
+
+  desc 'Remove entry from routing table'
+  arg_name 'dpid prefix netmask-length'
+  command :rm_table do |c|
+    c.desc 'Location to find socket files'
+    c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+    c.action do |_global_options, options, args|
+      dpid = args[0].hex
+      prefix = args[1]
+      mask_length = args[2]
+      Trema.trema_process('SimpleRouter', options[:socket_dir]).controller.
+        remove_routing_table(dpid,prefix,mask_length)
+    end
+  end
+
+  exit run(ARGV)
+end

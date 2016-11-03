@@ -89,6 +89,38 @@ class SimpleRouter < Trema::Controller
   end
   # rubocop:enable MethodLength
 
+  def show_routing_table(dpid)
+    #puts @routing_table.db.class
+    #puts @routing_table.netmask_length
+    puts "-- Routing table --"
+    @routing_table.db.each do |hash|
+      #puts hash.class
+      hash.each do |prefix,address|
+        print IPv4Address.new(prefix)
+        puts " / " + address.to_s
+      end
+    end
+    puts "-- end --"
+  end
+
+  def add_routing_table(dpid,prefix,mask_length,next_address)
+    # とりあえず、routing_tableのメソッドを利用
+    args = {netmask_length: mask_length.to_i,
+            destination: prefix,
+	    next_hop: next_address}
+    print "mask_length's class is "
+    puts mask_length.class
+    print "prefix's class is "
+    puts prefix.class
+    @routing_table.add(args)
+  end
+
+  def remove_routing_table(dpid,prefix,mask_length)
+    args = {netmask_length: mask_length.to_i,
+            destination: prefix}
+    @routing_table.remove(args)
+  end
+
   private
 
   def sent_to_router?(packet_in)
