@@ -121,6 +121,22 @@ class SimpleRouter < Trema::Controller
     @routing_table.remove(args)
   end
 
+  def show_interface(dpid)
+    puts "--Router's interface--"
+    Interface.each do |interface|
+      print "port_number : "
+      puts interface.port_number
+      print "mac_address : "
+      puts interface.mac_address
+      print "ip_address : "
+      puts interface.ip_address.value
+      print "netmask_length : "
+      puts interface.netmask_length
+      puts ""
+    end
+    puts "--end--"
+  end
+
   private
 
   def sent_to_router?(packet_in)
